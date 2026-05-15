@@ -45,6 +45,8 @@ renderExpenses(theExpenses);
 
 5. // form submission
 function submitExpense() {
-    
+
 }
+
+expenseForm.addEventListener("submit", submitExpense);
 
