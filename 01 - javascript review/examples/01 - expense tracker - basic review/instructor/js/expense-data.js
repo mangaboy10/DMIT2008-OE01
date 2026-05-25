@@ -1,4 +1,4 @@
-const theExpenses = [
+const expenses = [
   { id: 1, title: "Book", category: "Education", date: "2025-05-11", amount: 15.99 },
   { id: 2, title: "Pizza", category: "Food", date: "2025-05-11", amount: 22.5 },
   { id: 3, title: "Groceries", category: "Food", date: "2025-05-10", amount: 64.3 },
@@ -50,4 +50,4 @@ const theExpenses = [
   { id: 49, title: "Sandwich", category: "Food", date: "2025-03-25", amount: 6.0 }
 ];
 
-export default theExpenses;
+export default expenses;
