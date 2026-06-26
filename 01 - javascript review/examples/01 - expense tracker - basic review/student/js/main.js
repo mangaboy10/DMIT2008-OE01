@@ -1,52 +1,104 @@
-//Instruction On expense-tracker-code-explained.md
-//Instruction On expense-tracker-code-explained.md
+// 1. import the data from the file (in lieu of e.g. a database / REST API)
+import expenses from './expense-data.js';
 
-import theExpenses from "./expense-data";
+// 2. grab relevant DOM elements
+const expenseContainer = document.getElementById('expense-container');
+const searchBox = document.getElementById('searchbox');
+const expenseForm = document.getElementById('expense-form-add');
 
-// 2. Grab the element DOM elements
-const expenseContainer = document.getElementById("expense-container");
+// 3. render out data into a grid of cards
+function renderExpenses(expenseData) {
+  // first, clear out existing HTML for the container (because we're about to re-render it)
+  expenseContainer.innerHTML = "";
 
-const searchItem = document.getElementById('searchbox');
-const expenseForm = document.getElementById('expense-form-add'); 
+  // then, take our array of data, and render out a card for each one
+  // for a given expense, add a new card containing that data to the expenseContainer's inner HTML
+  expenseData.forEach(
+    (expense) => {
+      expenseContainer.innerHTML += ` 
 
-//3. render out data into a grid of cards
-function renderExpenses(expenseData){
-    console.log(expenseData)
-    // clear out existing 
-
-    expenseContainer.innerHTML = "";
-
-    expenseData.forEach(
-        // for a given expense,
-        (expense) => {
-            expenseContainer.innerHTML += `
-             <div class="card" id="${expense.id}">
-              <div class="header">
-                <div>
-                  <div class="title">${expense.title}</div>
-                  <div class="meta category">${expense.category}</div>
-                </div>
-                <div class="amount">${expense.amount}</div>
-              </div>
-              <div class="meta date">${expense.date}</div>
-              <div class="actions">
-                <button class="edit-btn" id="${expense.id}">Edit</button>
-                <button class="delete-btn" id="${expense.id}">Delete</button>
-              </div>
-            </div>
-            `
-        }
-    )
+      <div class="card" id="${expense.id}">
+        <div class="header">
+          <div>
+            <div class="title">${expense.title}</div>
+            <div class="meta category">${expense.category}</div>
+          </div>
+          <div class="amount">${expense.amount}</div>
+        </div>
+        <div class="meta date">${expense.date}</div>
+        <div class="actions">
+          <button class="edit-btn" id="${expense.id}">Edit</button>
+          <button class="delete-btn" id="${expense.id}">Delete</button>
+        </div>
+      </div>
+    `
+    }
+  );
 }
 
 // 4. call the function to actually do the render
-renderExpenses(theExpenses);
+renderExpenses(expenses);
+
+expenseForm.addEventListener("change", function (event) { console.log(event.target.value); });
+
+// 5. let's write all our code as inline first, then clean it up later
+expenseForm.addEventListener(
+  "submit",            // argument 1: the name/type of the event (e.g. submit, change, click -> these are HTML built-ins)
+  function (event) {   // argument 2: the logic/function that should fire (with the event being passed to it by default)
+
+    event.preventDefault(); // event built-in; preventing default behaviour on a form basically means "don't post data & reload page"
+
+    // let's grab all our input elements/values
+    const title = document.getElementById('title').value;
+    const amount = parseFloat(document.getElementById('amount').value);
+    const date = document.getElementById('date').value;
+    const category = document.getElementById('category').value;
+
+    // make a new expense if all the fields are present & amount is a number
+    if (title && date && category && !isNaN(amount)) { // "isNaN": "is Not a Number"
+      const newExpense = {
+        // if object property name & variable name are the same you can just {value} instead of {property: value}
+        id: expenses.length + 1,
+        title,
+        amount,
+        date,
+        category,
+      };
+      // a change in data -> ui should re-render (with vanilla JS, we have to trigger that manually)
+    expenses.push(newExpense);
+    renderExpenses(expenses);
+    }
+
+    
+
+    // after submitting, we want the form to reset
+    expenseForm.reset();
+    // you could also write this.reset() since the code scope for this listener is attached to expenseForm
+    // as the parent object — "this" just refers to whatever the parent object for a block of code is
+});
+
+searchBox.addEventListener(
+  "input",
+  function(event) {
+    const searchTerm = event.target.value.toLowerCase();
+    console.log(searchTerm);
+    console.log(event);
+    const filteredExpenses = expenses.filter(
+      (expense) => expense.title.toLocaleLowerCase().includes(searchTerm)
+    );
+    renderExpenses(filteredExpenses)
+  }
+)
 
 
-5. // form submission
-function submitExpense() {
-
-}
-
-expenseForm.addEventListener("submit", submitExpense);
-
+expenseContainer.addEventListener(
+  "click",
+  function(event) {
+    console.log(event.target.classList);
+    if(event.target.classList.contains("delete-btn")) {
+      console.log("got-delete")
+    } else if(event.target.classList.contains("edit-btn")){
+      console.log("got-edit")
+    }
+  }
+)
