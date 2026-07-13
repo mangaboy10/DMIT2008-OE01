@@ -1,3 +1,5 @@
+import { useState } from 'react';
+
 import { MOVIE_LIST } from '../utils/movies'
 
 import Head from 'next/head'
@@ -15,7 +17,92 @@ import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 
+// NOTE: This is using old MUI syntax, just so you're exposed to both syntax styles
+// in case you end up working in React on the job.
+
 export default function Home() {
+
+  /* I've shown you setting up one stateful variable for each form field
+     just to get you used to implementing state, but what if our form had
+     many, many fields? Our code gets bloated if we have 30 stateful variables.
+
+     Remember, state can store any data type. Therefore, we may as well just collect
+     all our form inputs into one *object*, and change its properties.
+
+     We'll wire this up next class, but this is what we need to get started:
+     (I would probably write this on one line with just these two properties,
+     but I'm expanding it out to show you how I'd write it if there were lots.)
+  */
+  const [searchForm, setSearchForm] = useState(
+    {
+      title: "",
+      year: "",
+    }
+  )
+
+  // this is what I'll be mutating / rendering from so that the original MOVIE_LIST
+  // always remains intact.
+  const [movies, setMovies] = useState(MOVIE_LIST);
+
+  // set up a stateful error message
+  const [errorMsg, setErrorMsg] = useState("")
+
+  const handleSubmit = () => {
+    event.preventDefault();
+    validateSearch();
+    filterMovies();
+    console.log(searchForm.title);
+    console.log(searchForm.year);
+  }
+
+  const validateSearch = () => {
+    // considerations for whether there are input errors
+
+    if (!searchForm.year.trim().length) { // or year.trim().length === 0
+      // this means no input, so there cannot be any errors
+      // therefore, reset error state
+      setErrorMsg("")
+      return
+    }
+
+    if (!isValidYear(searchForm.year)) {
+      setErrorMsg(`${searchForm.year} is not a valid year.`)
+    }
+
+  }
+
+  const filterMovies = () => {
+    // 1. temporarily copy the original MOVIE_LIST so I don't mutate original data
+    let filteredMovies = [...MOVIE_LIST] // I can't just = MOVIE_LIST because then it'll alter the original
+
+    // 2. deal with title (trim, lowercase, match on .includes() )
+    if (searchForm.title.trim()) {
+      filteredMovies = filteredMovies.filter(
+        (movie) => { 
+          // filter's callback function should return something truthy or falsey
+          return movie.name.toLowerCase().includes(
+            searchForm.title.trim().toLowerCase()
+          )
+        }
+      )
+    }
+
+    // 3. deal with the year (trim, convert to integter, match on equality)
+    if (searchForm.year.trim()) {
+      filteredMovies = filteredMovies.filter((movie) => {
+        return movie.year === parseInt(searchForm.year.trim())
+      })
+    }
+
+    // 4. now that we're done processing the array, write it to state
+    setMovies(filteredMovies);
+  }
+
+  const isValidYear = (year) => {
+    // a) is a valid number, b) check for length
+    return !isNaN(year) && year.trim().length === 4
+  }
+
   return (
     <div>
       <Head>
@@ -33,39 +120,72 @@ export default function Home() {
           <Typography variant="h2" component="h2" style={{textAlign: "center"}}>
             Movies
           </Typography>
-          <form style={{width: '100%'}}>
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
-                <TextField
-                  id="search-field"
-                  label="search..."
-                  variant="standard"
-                  sx={{width: '100%'}}
-                  
-                />
+            <form
+              style={{width: '100%'}}
+              onSubmit={handleSubmit}
+            >
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <TextField
+                    id="search-field"
+                    label="search..."
+                    variant="standard"
+                    value={searchForm.title}
+                    onChange={
+                      /* We need to reconstruct the whole object when writing to state (just like arrays),
+                         and the syntax is similar! Instead of [...arrayItems, newItem], we just
+                         {...object, specificProperty: newValue }
+                      */
+                      (e) => {setSearchForm(
+                        {...searchForm, title: e.target.value}
+                      )}
+                    }
+                    sx={{width: '100%'}}
+                    
+                  />
+                </Grid>
+                <Grid item xs={4}>
+                  <TextField
+                    id="year-field"
+                    label="year"
+                    variant="standard"
+                    value={searchForm.year}
+                    onChange={(e) => {setSearchForm(
+                      {...searchForm, year: e.target.value}
+                      )}}
+                    sx={{width: '100%'}}
+                   
+                  />
+                </Grid>
+                <Grid item xs={2}>
+                  <Button
+                    type="submit"
+                    variant="contained"
+                  >Filter</Button>
+                </Grid>
+                <Grid item xs={10}>
+                  { errorMsg &&
+                    <Alert severity="error">{errorMsg}</Alert>
+                  }
+                </Grid>
               </Grid>
-              <Grid item xs={4}>
-                <TextField
-                  id="year-field"
-                  label="year"
-                  variant="standard"
-                  sx={{width: '100%'}}
-                 
-                />
-              </Grid>
-              <Grid item xs={2}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                >Filter</Button>
-              </Grid>
-              <Grid item xs={10}>
-                {/* Add the error message here*/}
-              </Grid>
-            </Grid>
-          </form>
+            </form>
           <List sx={{width: `100%`}}>
-          { MOVIE_LIST.map((movieData, index)=> {
+
+            {/* Note how this differs from the readme:
+                We only make conditional the part that changes.
+                Much cleaner & more readable code; someone else (that includes future you)
+                doesn't have to meticulously examine every line to make sure nothing else changed.
+            */}
+            <ListItem>
+              <ListItemText>
+                <Typography variant="p" component="div">
+                  { !movies.length ? "No matches found." : `${movies.length} movie results:` }
+                </Typography>
+              </ListItemText>
+            </ListItem>
+
+          { movies.map((movieData, index)=> {
               return <ListItem key={index}>
                 <ListItemText>
                   <Typography variant="p" component="div">
