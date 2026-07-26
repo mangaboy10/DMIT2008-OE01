@@ -6,6 +6,9 @@ import CardContent from '@mui/material/CardContent';
 
 import Typography from '@mui/material/Typography';
 
+import DeleteIcon from '@mui/icons-material/Delete';
+import IconButton from '@mui/material/IconButton';
+
 
 export default function ReviewCard({ rating, title, comment }) {
 
@@ -40,6 +43,12 @@ export default function ReviewCard({ rating, title, comment }) {
           <Avatar sx={{ bgcolor: getRatingColour(rating) }} aria-label="recipe">
             {rating}
           </Avatar>
+        }
+
+        action={
+          <IconButton>
+            <DeleteIcon />
+          </IconButton>
         }
         
         title={

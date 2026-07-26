@@ -34,15 +34,18 @@ import Typography from '@mui/material/Typography';
 
 
 export default function Home() {
-  console.log("Home component, line 1");
 
   const RANDOM_QUOTE_URL = 'https://dummyjson.com/quotes/random'
-  const [quoteData, setQuoteData] = useState({
-    quote: "Quote here.",
-    author: "Author here"
-  })
+  const DEFAULT_QUOTE = 'Quote here.'
+  const DEFAULT_AUTHOR = 'Author here'
 
-  const handleClick = () => {
+  const [quoteData, setQuoteData] = useState({
+    quote: DEFAULT_QUOTE,
+    author: DEFAULT_AUTHOR
+  })
+  const [numQuotes, setNumQuotes] = useState(0);
+
+  const getRandomQuote = () => {
     fetch(RANDOM_QUOTE_URL)
       .then((response)=> {
         return response.json()
@@ -57,14 +60,19 @@ export default function Home() {
   // 1. fire effect on component mount (very often, "on page load")
   useEffect(
     () => { // param 1: the callback function that should run when the effect fires
-      console.log("component has mounted, effect fired on mount")
+      getRandomQuote();
     },
     []      // param 2: the dependency array (empty array = fire when component mounts)
   )
 
   // 2. fire effect on state change
   useEffect(
-    () => { console.log("quote was changed") },
+    () => { 
+      if (quoteData.quote  !== DEFAULT_QUOTE &&
+          quoteData.author !== DEFAULT_AUTHOR) {
+        setNumQuotes(numQuotes + 1)       
+      } 
+    },
     [quoteData] // when dependency array contains things (for now, let's pretend that's just state)               
   )             // effect will fire automatically when that state changes!
 
@@ -120,12 +128,21 @@ export default function Home() {
             >
               <Button
                 variant="contained"
-                onClick={handleClick}
+                onClick={getRandomQuote}
               >
                 Get New Quote
               </Button>
             </Box>
           </Box>
+          <Typography
+            sx={{pt: 8}}
+            variant="h5"
+            align="center"
+            color="text.primary"
+            paragraph
+          >
+            You have fetched {numQuotes} quotes
+          </Typography>
         </Container>
       </main>
     </div>

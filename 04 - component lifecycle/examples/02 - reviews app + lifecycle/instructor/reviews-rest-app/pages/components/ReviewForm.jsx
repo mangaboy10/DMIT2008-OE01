@@ -4,7 +4,7 @@ import { useState } from 'react';
 // API functions
 //  . -> current directory
 // .. -> parent directory 
-import { addReview, getReviews } from '../api/reviews';
+import { addReview } from '../api/reviews';
 
 // MUI components - layout
 import Grid from '@mui/material/Grid';
@@ -41,15 +41,6 @@ export default function ReviewForm({ reviews, onReviewsChange }) {
   const [title, setTitle]       = useState("")
   const [comments, setComments] = useState("")
   const [rating, setRating]     = useState(0)
-
-  const loadAllReviews = () => {
-    // I'm demonstrating 'bad practice' in the interest of concision;
-    // ideally, API functions would be in a separate layer from rendering.
-    getReviews()
-      .then((data) => {
-        onReviewsChange(data)
-    });
-  }
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -132,16 +123,6 @@ export default function ReviewForm({ reviews, onReviewsChange }) {
 		          Add New Review
 		        </Button>
 		      </Grid>
-
-		      {/* I wanna restyle / reorganise things visually a bit, starting with this button */}
-		      <Grid item sm={12} md={4}>
-			      <Button
-			        variant="outlined"
-			        onClick={loadAllReviews}
-			      >
-			        Load All Current Reviews
-			      </Button>
-			    </Grid>
 
 		    </Grid>
 
