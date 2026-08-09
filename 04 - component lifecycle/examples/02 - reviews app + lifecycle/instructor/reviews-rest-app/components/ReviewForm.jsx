@@ -4,7 +4,7 @@ import { useState } from 'react';
 // API functions
 //  . -> current directory
 // .. -> parent directory 
-import { addReview } from '../api/reviews';
+import { addReview } from '../utils/api/reviews';
 
 // MUI components - layout
 import Grid from '@mui/material/Grid';

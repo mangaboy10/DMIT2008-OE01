@@ -1,3 +1,5 @@
+import { deleteReview } from '../utils/api/reviews';
+
 import Avatar from '@mui/material/Avatar';
 
 import Card from '@mui/material/Card';
@@ -10,7 +12,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import IconButton from '@mui/material/IconButton';
 
 
-export default function ReviewCard({ rating, title, comment }) {
+export default function ReviewCard({
+  id,
+  rating,
+  title,
+  comment,
+  deleteCallback
+}) {
 
   const getRatingColour = (rating) => {
 
@@ -36,6 +44,15 @@ export default function ReviewCard({ rating, title, comment }) {
     return colour.display
   }
   
+
+  const deleteReviewHandler = (reviewId) => {
+    console.log(`deleting ${reviewId}`);
+    // API delete is still async/non-obstructing; they're just automated together now
+    deleteReview(reviewId).then(
+      (data) => { deleteCallback(id) }
+    )
+  }
+
   return (
     <Card sx={{ mt: 3 }}>
       <CardHeader
@@ -46,7 +63,9 @@ export default function ReviewCard({ rating, title, comment }) {
         }
 
         action={
-          <IconButton>
+          <IconButton onClick={
+            () => { deleteReviewHandler(id); }
+          }>
             <DeleteIcon />
           </IconButton>
         }
